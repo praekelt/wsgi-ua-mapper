@@ -19,19 +19,16 @@ class UAMapper(object):
         user_agent = unicode(environ['HTTP_USER_AGENT'])
         key = self.get_cache_key(user_agent)
         
+        status = '200 OK'
+        response_headers = [('Content-type', 'text/plain')]
+        start_response(status, response_headers)
+        
         output = mc.get(key)
-
-        if output:
-            return output
-        else:
+        if not output:
             output = self.gen_output(user_agent, start_response)
             mc.set(key, output)
-            status = '200 OK'
-            response_headers = [('Content-type', 'text/plain'),
-                                ('Content-Length', str(len(output)))]
-
-            start_response(status, response_headers)
-            return output
+        
+        return [output]
     
     def gen_output(self, user_agent, start_response):
         from ua_mapper import wurfl
