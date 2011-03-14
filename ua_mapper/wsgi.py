@@ -2,6 +2,8 @@ import hashlib
 import memcache
 from pywurfl.algorithms import TwoStepAnalysis
 
+from ua_mapper import wurfl
+
 class UAMapper(object):
     default = 'medium'
 
@@ -31,7 +33,6 @@ class UAMapper(object):
         return [output]
     
     def gen_output(self, user_agent, start_response):
-        from ua_mapper import wurfl
         output = self.default
         devices = wurfl.devices
         search_algorithm = TwoStepAnalysis(devices)
