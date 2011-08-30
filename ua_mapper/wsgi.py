@@ -6,6 +6,7 @@ from ua_mapper import wurfl
 
 class UAMapper(object):
     default = 'medium'
+    default_user_agent = ''
 
     def map(self, device):
         """
@@ -18,7 +19,14 @@ class UAMapper(object):
 
     def __call__(self, environ, start_response):
         mc = memcache.Client([environ['MEMCACHED_SOCKET'],], debug=0)
-        user_agent = unicode(environ['HTTP_USER_AGENT'])
+
+        # Resolve user agent. Fallback to default_user_agent member if
+        # not present in environ.
+        if 'HTTP_USER_AGENT' in environ:
+            user_agent = unicode(environ['HTTP_USER_AGENT'])
+        else:
+            user_agent = unicode(self.default_user_agent)
+
         key = self.get_cache_key(user_agent)
         
         status = '200 OK'
