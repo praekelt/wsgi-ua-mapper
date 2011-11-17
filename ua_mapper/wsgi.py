@@ -8,6 +8,9 @@ class UAMapper(object):
     default = 'medium'
     default_user_agent = ''
 
+    def __init__(self):
+        self.mc = None
+
     def map(self, device):
         """
         Override this method to perform your own custom mapping.
@@ -18,7 +21,9 @@ class UAMapper(object):
             return 'high'
 
     def __call__(self, environ, start_response):
-        mc = memcache.Client([environ['MEMCACHED_SOCKET'],], debug=0)
+        # Lazily setup memcache client
+        if self.mc is None:
+            self.mc = memcache.Client([environ['MEMCACHED_SOCKET'],], debug=0)
 
         # Resolve user agent. Fallback to default_user_agent member if
         # not present in environ.
@@ -33,10 +38,10 @@ class UAMapper(object):
         response_headers = [('Content-type', 'text/plain')]
         start_response(status, response_headers)
         
-        output = mc.get(key)
+        output = self.mc.get(key)
         if not output:
             output = self.gen_output(user_agent, start_response)
-            mc.set(key, output)
+            self.mc.set(key, output)
         
         return [output]
     
