@@ -24,4 +24,6 @@ setup(
         'python-memcached',
     ],
     zip_safe=False,
+    test_suite="ua_mapper.tests.TestWSGI",
+
 )
