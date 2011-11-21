@@ -26,12 +26,8 @@ class UAMapper(object):
             self.mc = memcache.Client([environ['MEMCACHED_SOCKET'],], debug=0)
 
         # Resolve user agent. Fallback to default_user_agent member if
-        # not present in environ.
-        if 'HTTP_USER_AGENT' in environ:
-            user_agent = unicode(environ['HTTP_USER_AGENT'])
-        else:
-            user_agent = unicode(self.default_user_agent)
-
+        # not present in environ.        
+        user_agent = environ.get('HTTP_USER_AGENT', self.default_user_agent)
         key = self.get_cache_key(user_agent)
         
         status = '200 OK'
@@ -39,8 +35,9 @@ class UAMapper(object):
         start_response(status, response_headers)
         
         output = self.mc.get(key)
-        if not output:
-            output = self.gen_output(user_agent, start_response)
+        if not output:            
+            user_agent_unicode = unicode(user_agent.decode('utf-8'))
+            output = self.gen_output(user_agent_unicode, start_response)
             self.mc.set(key, output)
         
         return [output]

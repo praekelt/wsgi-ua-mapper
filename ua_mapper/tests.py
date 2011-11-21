@@ -85,11 +85,10 @@ class TestWSGI(unittest.TestCase):
 
         conn = httplib.HTTPConnection('127.0.0.1', self.port)
         for line in lines:
-            self.extra_environ['HTTP_USER_AGENT'] = line
+            self.extra_environ['HTTP_USER_AGENT'] = line.strip()
             conn.request('GET', '/some/url')
             result = conn.getresponse().read()
-            print result
-            #self.assertEquals(result, 'medium')
+            self.assertEquals(result, 'high')
 
         conn.close()
 
